@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métodos de Pascal e Markowitz</title>
+    <!-- Incluindo bibliotecas necessárias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-blue: #205baa;
+            --secondary-blue: #23609f;
+            --accent-yellow: #eac730;
+            --light-gray: #eef1f1;
+            --medium-gray: #a6a9ae;
+            --white: #ffffff;
+            --dark-text: #333333;
+            --probability-blue: #205baa; /* Alterado para azul forte */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+            color: var(--primary-blue); /* Alterado para azul padrão */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .header-logo {
+            height: 80px;
+            width: auto;
+            margin-right: 1rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        nav a:hover {
+            background-color: var(--secondary-blue);
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .home-container {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .home-title {
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            font-size: 2.8rem;
+            font-weight: 600;
+        }
+        
+        .home-subtitle {
+            color: var(--secondary-blue);
+            margin-bottom: 3rem;
+            font-size: 1.6rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 700;
+            line-height: 1.8;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            min-width: 220px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-secondary {
+            background-color: var(--primary-blue); /* Alterado para mesma cor do botão Iniciar */
+            color: white; /* Alterado para branco */
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-download {
+            background-color: #23609f;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background-color: #23609f;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        
+        footer {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 1.5rem 2rem;
+            margin-top: auto;
+        }
+        
+        .citation {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .logo-img {
+            height: 75px;
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin: 0 20px;
+            flex-grow: 1;
+        }
+        
+        .footer-text p {
+            font-size: 14px;
+            margin: 8px 0;
+            color: white;
+            line-height: 1.5;
+        }
+        
+        /* Página de configuração */
+        .config-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .config-title {
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary-blue);
+            font-size: 1.2rem;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 1.2rem;
+            color: var(--primary-blue); /* Adicionado para azul */
+        }
+        
+        .error {
+            color: #d32f2f;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        /* Página da matriz */
+        .matrix-container {
+            overflow-x: auto;
+        }
+        
+        .matrix-title {
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            border: 1px solid var(--medium-gray);
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        th {
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .prob-row {
+            background-color: #eef0f1; /* Alterado para #eef0f1 conforme solicitado */
+            font-weight: 600;
+            color: var(--probability-blue); /* Alterado para azul forte */
+        }
+        
+        .state-name {
+            font-weight: 600;
+            background-color: rgba(32, 91, 170, 0.1);
+            color: var(--primary-blue); /* Adicionado para azul */
+        }
+        
+        .alternative-name {
+            color: var(--primary-blue); /* Adicionado para azul */
+        }
+        
+        .value-input {
+            color: var(--primary-blue); /* Adicionado para azul */
+        }
+        
+        .sum-display {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--primary-blue); /* Alterado para azul padrão */
+        }
+        
+        .sum-error {
+            color: #d32f2f;
+        }
+        
+        .sum-ok {
+            color: #388e3c;
+        }
+        
+        .results-container {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .results-title {
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        .method-section {
+            margin-bottom: 2rem;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .method-title {
+            color: var(--secondary-blue);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-yellow);
+            padding-bottom: 0.5rem;
+            font-size: 1.6rem;
+        }
+        
+        .ranking {
+            margin-top: 1rem;
+        }
+        
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+            font-size: 1.3rem;
+        }
+        
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ranking-position {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 1.4rem;
+        }
+        
+        .ranking-winner {
+            background-color: rgba(46, 125, 50, 0.1);
+            font-weight: 600;
+            border-radius: 4px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Estilos para impressão/PDF */
+        .pdf-table {
+            font-size: 12px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .pdf-table th, .pdf-table td {
+            padding: 6px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+        
+        .pdf-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .pdf-table .prob-row {
+            background-color: #eef0f1; /* Alterado para #eef0f1 conforme solicitado */
+            color: var(--probability-blue); /* Alterado para azul forte */
+        }
+        
+        /* Página Sobre Nós */
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .about-title {
+            color: var(--primary-blue);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        .authors-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            justify-items: center;
+        }
+        
+        .author-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            text-align: center;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .author-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .author-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-blue);
+            margin: 0 auto 1rem;
+        }
+        
+        .author-info {
+            padding: 0;
+        }
+        
+        .author-name {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-link {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .social-link:hover {
+            transform: scale(1.1);
+        }
+        
+        .social-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        
+        .social-link-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .social-link-disabled:hover {
+            transform: none;
+        }
+        
+        /* Página do Tutorial */
+        .tutorial-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tutorial-title {
+            color: var(--primary-blue);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+        
+        .tutorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .youtube-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .youtube-link:hover {
+            color: var(--secondary-blue);
+        }
+        
+        .youtube-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .carousel-image {
+            max-width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(32, 91, 170, 0.7);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            z-index: 10;
+            opacity: 0;
+        }
+        
+        .carousel-container:hover .carousel-button {
+            opacity: 1;
+        }
+        
+        .carousel-button:hover {
+            background-color: var(--primary-blue);
+        }
+        
+        .carousel-prev {
+            left: 10px;
+        }
+        
+        .carousel-next {
+            right: 10px;
+        }
+        
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+        
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--medium-gray);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .carousel-indicator.active {
+            background-color: var(--primary-blue);
+        }
+        
+        @media (max-width: 1200px) {
+            .authors-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo-container {
+                justify-content: center;
+                margin-bottom: 1rem;
+                gap: 1rem;
+            }
+            
+            .header-logo {
+                height: 50px;
+                margin-right: 0;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            nav li {
+                margin: 0 0.5rem;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .logos {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .authors-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .author-card {
+                max-width: 300px;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+            }
+            
+            .tutorial-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .carousel-button {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-container">
+                <img src="https://i.ibb.co/pvyJXcc9/brasao-removebg-preview.png" class="header-logo" alt="UFF">
+                <div class="logo" style="position: absolute; left: 50%; transform: translateX(-50%);">Métodos de Pascal e Markowitz</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="nav-link" data-page="home">Início</a></li>
+                    <li><a href="#" class="nav-link" data-page="about">Sobre Nós</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <!-- Página Inicial -->
+        <section id="home" class="page active">
+            <div class="home-container" style="padding: 3rem 0;">
+                <p class="home-subtitle" style="margin-bottom: 4rem; max-width: 900px;">
+                    Ferramenta de Apoio à Decisão sob Incerteza, Fundamentada nos Métodos de Pascal e Markowitz, Promovendo uma Análise Integrada entre Expectativa e Variabilidade dos Resultados.
+                </p>
+                
+                <div class="button-container">
+                    <button id="start-app" class="btn btn-primary">Iniciar Aplicação</button>
+                    <button class="btn btn-secondary nav-link" data-page="tutorial">Tutorial</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Página de Configuração -->
+        <section id="config" class="page">
+            <div class="config-container">
+                <h2 class="config-title">Matriz de Decisão</h2>
+                
+                <div class="input-group">
+                    <label for="alternatives">Número de Alternativas:</label>
+                    <input type="number" id="alternatives" min="2" value="2">
+                    <div class="error" id="alternatives-error">O número de alternativas deve ser pelo menos 2.</div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="states">Número de Estados da Natureza:</label>
+                    <input type="number" id="states" min="2" value="2">
+                    <div class="error" id="states-error">O número de estados da natureza deve ser pelo menos 2.</div>
+                </div>
+                
+                <button id="generate-matrix" class="btn btn-primary" style="width: 100%; font-size: 1.3rem;">Gerar Matriz de Decisão</button>
+            </div>
+        </section>
+        
+        <!-- Página da Matriz -->
+        <section id="matrix" class="page">
+            <div class="matrix-container">
+                <h2 class="matrix-title">Matriz de Decisão</h2>
+                
+                <div class="sum-display" id="sum-display"></div>
+                
+                <div id="matrix-table"></div>
+                
+                <button id="calculate-results" class="btn btn-primary" style="width: 100%; font-size: 1.3rem;">Calcular Resultados</button>
+                
+                <div class="results-container" id="results-container">
+                    <h2 class="results-title">Resultados dos Métodos</h2>
+                    
+                    <div class="download-buttons">
+                        <button id="download-pdf" class="btn btn-download">Baixar PDF</button>
+                        <button id="download-images" class="btn btn-download">Baixar Imagens</button>
+                    </div>
+                    
+                    <div class="method-section">
+                        <h3 class="method-title">Método de Pascal</h3>
+                        <div id="pascal-results"></div>
+                    </div>
+                    
+                    <div class="method-section">
+                        <h3 class="method-title">Método de Markowitz</h3>
+                        <div id="markowitz-results"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Página Sobre Nós -->
+        <section id="about" class="page">
+            <div class="about-container">
+                <h2 class="about-title">Sobre Nós</h2>
+                
+                <div class="authors-container">
+                    <!-- Bruno Pereira Diniz -->
+                    <div class="author-card">
+                        <img src="https://i.ibb.co/RpMqQmGc/20220425-1847544.jpg" alt="Bruno Pereira Diniz" class="author-photo">
+                        <div class="author-info">
+                            <h3 class="author-name">Bruno Pereira Diniz</h3>
+                            <div class="social-links">
+                                <a href="http://lattes.cnpq.br/9664677647691745" class="social-link" title="Lattes" target="_blank">
+                                    <img src="https://i.ibb.co/LDrxN30t/image.png" alt="Lattes" class="social-icon">
+                                </a>
+                                <a href="https://www.linkedin.com/in/bruno-pereira-diniz-13a303214/" class="social-link" title="LinkedIn" target="_blank">
+                                    <img src="https://i.ibb.co/kZL8nTL/image.png" alt="LinkedIn" class="social-icon">
+                                </a>
+                                <a href="https://orcid.org/0009-0008-6621-7823" class="social-link" title="ORCID" target="_blank">
+                                    <img src="https://i.ibb.co/BVr0JMtF/image.png" alt="ORCID" class="social-icon">
+                                </a>
+                                <a href="https://www.researchgate.net/profile/Bruno-Pereira-Diniz" class="social-link" title="ResearchGate" target="_blank">
+                                    <img src="https://i.ibb.co/HpHjNJHR/image.png" alt="ResearchGate" class="social-icon">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Marcos dos Santos -->
+                    <div class="author-card">
+                        <img src="https://i.ibb.co/7N4Y3JbQ/image.png" alt="Marcos dos Santos" class="author-photo">
+                        <div class="author-info">
+                            <h3 class="author-name">Marcos dos Santos</h3>
+                            <div class="social-links">
+                                <a href="http://lattes.cnpq.br/5534398558592175" class="social-link" title="Lattes" target="_blank">
+                                    <img src="https://i.ibb.co/LDrxN30t/image.png" alt="Lattes" class="social-icon">
+                                </a>
+                                <a href="https://www.linkedin.com/in/profmarcosdossantos/" class="social-link" title="LinkedIn" target="_blank">
+                                    <img src="https://i.ibb.co/kZL8nTL/image.png" alt="LinkedIn" class="social-icon">
+                                </a>
+                                <a href="https://orcid.org/0000-0003-1533-5535" class="social-link" title="ORCID" target="_blank">
+                                    <img src="https://i.ibb.co/BVr0JMtF/image.png" alt="ORCID" class="social-icon">
+                                </a>
+                                <a href="https://www.researchgate.net/profile/Marcos_Dos_Santos6" class="social-link" title="ResearchGate" target="_blank">
+                                    <img src="https://i.ibb.co/HpHjNJHR/image.png" alt="ResearchGate" class="social-icon">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thiago Fernandes Lima -->
+                    <div class="author-card">
+                        <img src="https://i.ibb.co/DS2BcXD/image.png" alt="Thiago Fernandes Lima" class="author-photo">
+                        <div class="author-info">
+                            <h3 class="author-name">Thiago Lima</h3>
+                            <div class="social-links">
+                                <a href="http://lattes.cnpq.br/0204895344524909" class="social-link" title="Lattes" target="_blank">
+                                    <img src="https://i.ibb.co/LDrxN30t/image.png" alt="Lattes" class="social-icon">
+                                </a>
+                                <a href="https://www.linkedin.com/in/thiago-lima-8b69012a/" class="social-link" title="LinkedIn" target="_blank">
+                                    <img src="https://i.ibb.co/kZL8nTL/image.png" alt="LinkedIn" class="social-icon">
+                                </a>
+                                <a href="#" class="social-link social-link-disabled" title="ORCID" onclick="return false;">
+                                    <img src="https://i.ibb.co/BVr0JMtF/image.png" alt="ORCID" class="social-icon">
+                                </a>
+                                <a href="https://www.researchgate.net/profile/Thiago-Lima-28" class="social-link" title="ResearchGate" target="_blank">
+                                    <img src="https://i.ibb.co/HpHjNJHR/image.png" alt="ResearchGate" class="social-icon">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Daniel Augusto de Moura Pereira -->
+                    <div class="author-card">
+                        <img src="https://i.ibb.co/tp7zmLFB/image.png" alt="Daniel Augusto de Moura Pereira" class="author-photo">
+                        <div class="author-info">
+                            <h3 class="author-name">Daniel Moura</h3>
+                            <div class="social-links">
+                                <a href="http://lattes.cnpq.br/5889152523620761" class="social-link" title="Lattes" target="_blank">
+                                    <img src="https://i.ibb.co/LDrxN30t/image.png" alt="Lattes" class="social-icon">
+                                </a>
+                                <a href="https://www.linkedin.com/in/prof-dr-daniel-moura-37198913b/" class="social-link" title="LinkedIn" target="_blank">
+                                    <img src="https://i.ibb.co/kZL8nTL/image.png" alt="LinkedIn" class="social-icon">
+                                </a>
+                                <a href="https://orcid.org/0000-0002-7951-6098" class="social-link" title="ORCID" target="_blank">
+                                    <img src="https://i.ibb.co/BVr0JMtF/image.png" alt="ORCID" class="social-icon">
+                                </a>
+                                <a href="https://www.researchgate.net/profile/Daniel-Augusto-Moura-Pereira" class="social-link" title="ResearchGate" target="_blank">
+                                    <img src="https://i.ibb.co/HpHjNJHR/image.png" alt="ResearchGate" class="social-icon">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Página do Tutorial -->
+        <section id="tutorial" class="page">
+            <div class="tutorial-container">
+                <div class="tutorial-header">
+                    <h2 class="tutorial-title">Tutorial</h2>
+                    <a href="#" class="youtube-link" id="youtube-link">
+                        <img src="https://i.ibb.co/qMmN5VzX/image.png" alt="YouTube" class="youtube-icon">
+                        <span>Aula Completa</span>
+                    </a>
+                </div>
+                
+                <div class="carousel-container">
+                    <div class="carousel-slides">
+                        <div class="carousel-slide">
+                            <img src="https://i.ibb.co/q3gzSmY9/M-todo-de-Pascal-e-Markowitz.png" alt="Método de Pascal e Markowitz - Passo 1" class="carousel-image">
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://i.ibb.co/KcmL5WQW/M-todo-de-Pascal-e-Markowitz-2.png" alt="Método de Pascal e Markowitz - Passo 2" class="carousel-image">
+                        </div>
+                    </div>
+                    
+                    <button class="carousel-button carousel-prev">&#10094;</button>
+                    <button class="carousel-button carousel-next">&#10095;</button>
+                    
+                    <div class="carousel-indicators">
+                        <span class="carousel-indicator active" data-index="0"></span>
+                        <span class="carousel-indicator" data-index="1"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="citation">
+            <div class="logos" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <img src="https://i.ibb.co/xtXbG76y/Escola-Naval-removebg-preview.png" class="logo-img" alt="UFCG" style="height: 75px;">
+                <div class="footer-text" style="text-align: center; margin: 0 20px; flex-grow: 1;">
+                    <p style="font-size: 14px; margin: 8px 0; color: white; line-height: 1.5;">Todos os direitos reservados. O uso não comercial (acadêmico) deste software é gratuito.</p>
+                    <p style="font-size: 14px; margin: 8px 0; color: white; line-height: 1.5;">A única coisa que se pede em troca é citar este software quando os resultados são usados em publicações.</p>
+                    <p style="font-size: 14px; margin: 8px 0; color: white; line-height: 1.5;">Para citar o software: DINIZ, Bruno Pereira; SANTOS, Marcos dos; LIMA, Thiago Fernandes; PEREIRA, Daniel Augusto de Moura. Método de Pascal e de Markowitz web (v.1). 2025.</p>
+                </div>
+                <img src="https://i.ibb.co/M5xdL1ZS/UFCG.png" class="logo-img" alt="UFF" style="height: 75px;">
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navegação entre páginas
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+        
+        // Botão Iniciar Aplicação
+        document.getElementById('start-app').addEventListener('click', function() {
+            showPage('config');
+        });
+        
+        // Função para mostrar página específica
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        // Gerar matriz de decisão
+        document.getElementById('generate-matrix').addEventListener('click', function() {
+            const alternatives = parseInt(document.getElementById('alternatives').value);
+            const states = parseInt(document.getElementById('states').value);
+            
+            // Validação
+            let valid = true;
+            
+            if (alternatives < 2) {
+                document.getElementById('alternatives-error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('alternatives-error').style.display = 'none';
+            }
+            
+            if (states < 2) {
+                document.getElementById('states-error').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('states-error').style.display = 'none';
+            }
+            
+            if (!valid) return;
+            
+            // Gerar matriz
+            generateMatrix(alternatives, states);
+            showPage('matrix');
+        });
+        
+        // Função para gerar a matriz de decisão
+        function generateMatrix(alternatives, states) {
+            let matrixHTML = '<table>';
+            
+            // Cabeçalho
+            matrixHTML += '<tr><th>Alternativas/Estados</th>';
+            for (let i = 1; i <= states; i++) {
+                matrixHTML += `<th><input type="text" class="state-name" value="Estado ${i}" style="width: 100%; border: none; background: transparent; color: white; text-align: center; font-weight: 600; font-size: 1.3rem;"></th>`;
+            }
+            matrixHTML += '</tr>';
+            
+            // Linha de probabilidades
+            matrixHTML += '<tr class="prob-row"><td style="font-size: 1.3rem; color: var(--probability-blue);">Probabilidades</td>';
+            for (let i = 1; i <= states; i++) {
+                matrixHTML += `<td><input type="number" class="probability" min="0" max="1" step="0.01" value="${(1/states).toFixed(2)}" style="width: 100%; border: none; background: transparent; text-align: center; font-weight: 600; font-size: 1.3rem; color: var(--probability-blue);"></td>`;
+            }
+            matrixHTML += '</tr>';
+            
+            // Alternativas
+            for (let i = 1; i <= alternatives; i++) {
+                matrixHTML += `<tr><td><input type="text" class="alternative-name" value="Alternativa ${i}" style="width: 100%; border: none; background: transparent; text-align: center; font-weight: 600; font-size: 1.3rem; color: var(--primary-blue);"></td>`;
+                for (let j = 1; j <= states; j++) {
+                    matrixHTML += `<td><input type="number" class="value-input" value="0" style="width: 100%; border: none; background: transparent; text-align: center; font-size: 1.3rem; color: var(--primary-blue);"></td>`;
+                }
+                matrixHTML += '</tr>';
+            }
+            
+            matrixHTML += '</table>';
+            
+            document.getElementById('matrix-table').innerHTML = matrixHTML;
+            document.getElementById('results-container').style.display = 'none';
+            
+            // Adicionar eventos para atualizar a soma das probabilidades
+            document.querySelectorAll('.probability').forEach(input => {
+                input.addEventListener('input', updateProbabilitySum);
+                input.addEventListener('keydown', preventNegativeInput);
+                input.addEventListener('blur', validateProbabilityInput);
+            });
+            
+            updateProbabilitySum();
+        }
+        
+        // Função para impedir entrada de números negativos
+        function preventNegativeInput(e) {
+            if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+            }
+        }
+        
+        // Função para validar entrada de probabilidade
+        function validateProbabilityInput(e) {
+            const input = e.target;
+            let value = parseFloat(input.value);
+            
+            // Se o valor for negativo, definir como 0
+            if (value < 0) {
+                input.value = '0';
+                updateProbabilitySum();
+            }
+            
+            // Se o valor for maior que 1, definir como 1
+            if (value > 1) {
+                input.value = '1';
+                updateProbabilitySum();
+            }
+        }
+        
+        // Atualizar a soma das probabilidades
+        function updateProbabilitySum() {
+            const probabilities = document.querySelectorAll('.probability');
+            let sum = 0;
+            
+            probabilities.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                sum += value;
+            });
+            
+            const sumDisplay = document.getElementById('sum-display');
+            sumDisplay.textContent = `Soma das Probabilidades: ${sum.toFixed(2)}`;
+            
+            if (Math.abs(sum - 1) > 0.01) {
+                sumDisplay.className = 'sum-display sum-error';
+            } else {
+                sumDisplay.className = 'sum-display sum-ok';
+            }
+        }
+        
+        // Calcular resultados
+        document.getElementById('calculate-results').addEventListener('click', function() {
+            // Verificar se todos os campos estão preenchidos
+            const emptyInputs = Array.from(document.querySelectorAll('.value-input, .probability, .alternative-name, .state-name'))
+                .filter(input => input.value.trim() === '');
+            
+            if (emptyInputs.length > 0) {
+                alert('Por favor, preencha todos os campos da matriz.');
+                return;
+            }
+            
+            // Verificar se a soma das probabilidades é 1
+            const probabilities = document.querySelectorAll('.probability');
+            let sum = 0;
+            
+            probabilities.forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                sum += value;
+            });
+            
+            if (Math.abs(sum - 1) > 0.01) {
+                alert('A soma das probabilidades deve ser igual a 1.');
+                return;
+            }
+            
+            // Calcular resultados
+            calculateResults();
+            document.getElementById('results-container').style.display = 'block';
+        });
+        
+        // Função para calcular os resultados
+        function calculateResults() {
+            const alternatives = document.querySelectorAll('.alternative-name');
+            const stateNames = Array.from(document.querySelectorAll('.state-name')).map(input => input.value);
+            const probabilities = Array.from(document.querySelectorAll('.probability')).map(input => parseFloat(input.value));
+            const values = [];
+            
+            // Coletar valores
+            document.querySelectorAll('tr').forEach((row, rowIndex) => {
+                if (rowIndex < 2) return; // Pular cabeçalho e linha de probabilidades
+                
+                const rowValues = [];
+                row.querySelectorAll('.value-input').forEach(input => {
+                    rowValues.push(parseFloat(input.value));
+                });
+                
+                if (rowValues.length > 0) {
+                    values.push({
+                        name: row.querySelector('.alternative-name').value,
+                        values: rowValues
+                    });
+                }
+            });
+            
+            // Calcular método de Pascal (esperança)
+            const pascalResults = values.map(alternative => {
+                let expectedValue = 0;
+                
+                for (let i = 0; i < alternative.values.length; i++) {
+                    expectedValue += alternative.values[i] * probabilities[i];
+                }
+                
+                return {
+                    name: alternative.name,
+                    expectedValue: expectedValue
+                };
+            });
+            
+            // Ordenar por valor esperado (decrescente)
+            pascalResults.sort((a, b) => b.expectedValue - a.expectedValue);
+            
+            // Exibir resultados do método de Pascal
+            let pascalHTML = '<div class="ranking">';
+            pascalResults.forEach((result, index) => {
+                const isWinner = index === 0;
+                pascalHTML += `
+                    <div class="ranking-item ${isWinner ? 'ranking-winner' : ''}">
+                        <span class="ranking-position">${index + 1}º</span>
+                        <span>${result.name}</span>
+                        <span>E(X) = ${result.expectedValue.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            pascalHTML += '</div>';
+            
+            document.getElementById('pascal-results').innerHTML = pascalHTML;
+            
+            // Calcular método de Markowitz
+            const markowitzResults = values.map(alternative => {
+                // Primeiro calcular o valor esperado (já calculado acima)
+                let expectedValue = 0;
+                for (let i = 0; i < alternative.values.length; i++) {
+                    expectedValue += alternative.values[i] * probabilities[i];
+                }
+                
+                // Calcular variância: Σ [x_ij - E(X_i)]² × p_j
+                let variance = 0;
+                for (let i = 0; i < alternative.values.length; i++) {
+                    const deviation = alternative.values[i] - expectedValue;
+                    variance += Math.pow(deviation, 2) * probabilities[i];
+                }
+                
+                // Calcular desvio padrão
+                const standardDeviation = Math.sqrt(variance);
+                
+                // Calcular índice de Markowitz
+                const markowitzIndex = standardDeviation > 0 ? expectedValue / standardDeviation : 0;
+                
+                return {
+                    name: alternative.name,
+                    expectedValue: expectedValue,
+                    variance: variance,
+                    standardDeviation: standardDeviation,
+                    markowitzIndex: markowitzIndex
+                };
+            });
+            
+            // Ordenar por índice de Markowitz (decrescente)
+            markowitzResults.sort((a, b) => b.markowitzIndex - a.markowitzIndex);
+            
+            // Exibir resultados do método de Markowitz
+            let markowitzHTML = '<div class="ranking">';
+            markowitzResults.forEach((result, index) => {
+                const isWinner = index === 0;
+                markowitzHTML += `
+                    <div class="ranking-item ${isWinner ? 'ranking-winner' : ''}">
+                        <span class="ranking-position">${index + 1}º</span>
+                        <span>${result.name}</span>
+                        <span>A = ${result.markowitzIndex.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            
+            markowitzHTML += '</div><table style="margin-top: 1rem; font-size: 1.2rem;">';
+            markowitzHTML += '<tr><th>Alternativa</th><th>E(X)</th><th>Var(X)</th><th>σ</th><th>A = E(X)/σ</th></tr>';
+            
+            markowitzResults.forEach(result => {
+                markowitzHTML += `
+                    <tr>
+                        <td>${result.name}</td>
+                        <td>${result.expectedValue.toFixed(2)}</td>
+                        <td>${result.variance.toFixed(2)}</td>
+                        <td>${result.standardDeviation.toFixed(2)}</td>
+                        <td>${result.markowitzIndex.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            markowitzHTML += '</table>';
+            
+            document.getElementById('markowitz-results').innerHTML = markowitzHTML;
+        }
+        
+        // Baixar PDF
+        document.getElementById('download-pdf').addEventListener('click', function() {
+            generatePDF();
+        });
+        
+        // Baixar imagens
+        document.getElementById('download-images').addEventListener('click', function() {
+            downloadImages();
+        });
+        
+        // Função para gerar PDF
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 15;
+            
+            // Adicionar título
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Resultados dos Métodos de Pascal e Markowitz', margin, 20);
+            
+            // Adicionar data
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('pt-BR');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Data: ${dateStr}`, margin, 30);
+            
+            // Adicionar matriz de decisão
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Matriz de Decisão', margin, 45);
+            
+            // Criar matriz otimizada para PDF
+            const alternatives = document.querySelectorAll('.alternative-name');
+            const states = document.querySelectorAll('.state-name');
+            const probabilities = document.querySelectorAll('.probability');
+            const values = document.querySelectorAll('.value-input');
+            
+            // Calcular largura das colunas
+            const colWidth = (pageWidth - 2 * margin) / (states.length + 1);
+            const rowHeight = 8;
+            
+            let yPos = 55;
+            
+            // Desenhar cabeçalho
+            doc.setFillColor(32, 91, 170); // Cor do cabeçalho
+            doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(9);
+            doc.text('Alternativas', margin + 2, yPos + 5);
+            
+            for (let i = 0; i < states.length; i++) {
+                const stateName = states[i].value;
+                doc.text(stateName, margin + colWidth * (i + 1) + 2, yPos + 5);
+            }
+            
+            yPos += rowHeight;
+            
+            // Desenhar linha de probabilidades
+            doc.setFillColor(238, 240, 241); // Cor #eef0f1 conforme solicitado
+            doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+            doc.setTextColor(32, 91, 170); // Azul forte
+            doc.text('Probabilidades', margin + 2, yPos + 5);
+            
+            for (let i = 0; i < probabilities.length; i++) {
+                const prob = parseFloat(probabilities[i].value).toFixed(2);
+                doc.text(prob, margin + colWidth * (i + 1) + 2, yPos + 5);
+            }
+            
+            yPos += rowHeight;
+            
+            // Desenhar alternativas
+            doc.setFillColor(255, 255, 255);
+            doc.setTextColor(0, 0, 0);
+            
+            for (let i = 0; i < alternatives.length; i++) {
+                // Alternar cor de fundo para melhor legibilidade
+                if (i % 2 === 0) {
+                    doc.setFillColor(240, 240, 240);
+                } else {
+                    doc.setFillColor(255, 255, 255);
+                }
+                
+                doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+                
+                // Nome da alternativa
+                doc.text(alternatives[i].value, margin + 2, yPos + 5);
+                
+                // Valores
+                for (let j = 0; j < states.length; j++) {
+                    const valueIndex = i * states.length + j;
+                    const value = values[valueIndex].value;
+                    doc.text(value, margin + colWidth * (j + 1) + 2, yPos + 5);
+                }
+                
+                yPos += rowHeight;
+                
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 20) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+            }
+            
+            // Adicionar resultados do método de Pascal
+            doc.addPage();
+            yPos = margin;
+            
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Método de Pascal', margin, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const pascalResults = document.querySelectorAll('#pascal-results .ranking-item');
+            pascalResults.forEach((item, index) => {
+                const position = item.querySelector('.ranking-position').textContent;
+                const name = item.querySelector('span:nth-child(2)').textContent;
+                const value = item.querySelector('span:nth-child(3)').textContent;
+                
+                doc.text(`${position} - ${name} - ${value}`, margin, yPos);
+                yPos += 6;
+                
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 10) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+            });
+            
+            // Adicionar resultados do método de Markowitz
+            doc.addPage();
+            yPos = margin;
+            
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Método de Markowitz', margin, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            
+            const markowitzResults = document.querySelectorAll('#markowitz-results .ranking-item');
+            markowitzResults.forEach((item, index) => {
+                const position = item.querySelector('.ranking-position').textContent;
+                const name = item.querySelector('span:nth-child(2)').textContent;
+                const value = item.querySelector('span:nth-child(3)').textContent;
+                
+                doc.text(`${position} - ${name} - ${value}`, margin, yPos);
+                yPos += 6;
+                
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 10) {
+                    doc.addPage();
+                    yPos = margin;
+                }
+            });
+            
+            // Adicionar tabela detalhada de Markowitz
+            yPos += 5;
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Detalhamento do Método de Markowitz', margin, yPos);
+            yPos += 8;
+            
+            // Cabeçalho da tabela - CORREÇÃO APLICADA AQUI
+            doc.setFillColor(32, 91, 170);
+            doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            
+            // CORREÇÃO: Substituir σ e A = E(X)/σ por texto claro
+            const markowitzCols = ['Alternativa', 'E(X)', 'Var(X)', 'Desvio Padrão', 'Pontuação'];
+            const markowitzColWidth = (pageWidth - 2 * margin) / markowitzCols.length;
+            
+            markowitzCols.forEach((col, index) => {
+                doc.text(col, margin + markowitzColWidth * index + 2, yPos + 5);
+            });
+            
+            yPos += rowHeight;
+            
+            // Dados da tabela
+            const markowitzTable = document.querySelector('#markowitz-results table');
+            const markowitzRows = markowitzTable.querySelectorAll('tr');
+            
+            doc.setTextColor(0, 0, 0);
+            
+            for (let i = 1; i < markowitzRows.length; i++) { // Começar em 1 para pular o cabeçalho
+                const cells = markowitzRows[i].querySelectorAll('td');
+                
+                // Alternar cor de fundo
+                if (i % 2 === 0) {
+                    doc.setFillColor(240, 240, 240);
+                } else {
+                    doc.setFillColor(255, 255, 255);
+                }
+                
+                doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+                
+                cells.forEach((cell, cellIndex) => {
+                    doc.text(cell.textContent, margin + markowitzColWidth * cellIndex + 2, yPos + 5);
+                });
+                
+                yPos += rowHeight;
+                
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 10) {
+                    doc.addPage();
+                    yPos = margin;
+                    
+                    // Redesenhar cabeçalho na nova página
+                    doc.setFillColor(32, 91, 170);
+                    doc.rect(margin, yPos, pageWidth - 2 * margin, rowHeight, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    
+                    // CORREÇÃO: Usar o mesmo cabeçalho corrigido
+                    markowitzCols.forEach((col, index) => {
+                        doc.text(col, margin + markowitzColWidth * index + 2, yPos + 5);
+                    });
+                    
+                    yPos += rowHeight;
+                }
+            }
+            
+            // Salvar o PDF
+            doc.save('resultados-pascal-markowitz.pdf');
+        }
+        
+        // Função para baixar imagens
+        function downloadImages() {
+            // Capturar matriz de decisão
+            const matrixElement = document.getElementById('matrix-table');
+            
+            html2canvas(matrixElement, {
+                scale: 2, // Aumentar a resolução
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                // Converter para imagem e baixar
+                const link = document.createElement('a');
+                link.download = 'matriz-decisao.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Capturar resultados de Pascal
+                const pascalElement = document.getElementById('pascal-results');
+                
+                html2canvas(pascalElement, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    // Converter para imagem e baixar
+                    const link = document.createElement('a');
+                    link.download = 'resultados-pascal.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Capturar resultados de Markowitz
+                    const markowitzElement = document.getElementById('markowitz-results');
+                    
+                    html2canvas(markowitzElement, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    }).then(canvas => {
+                        // Converter para imagem e baixar
+                        const link = document.createElement('a');
+                        link.download = 'resultados-markowitz.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    });
+                });
+            });
+        }
+        
+        // Carrossel do Tutorial
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+        const prevButton = document.querySelector('.carousel-prev');
+        const nextButton = document.querySelector('.carousel-next');
+        
+        // Função para mostrar slide específico
+        function showSlide(index) {
+            // Verificar limites
+            if (index < 0) {
+                currentSlide = slides.length - 1;
+            } else if (index >= slides.length) {
+                currentSlide = 0;
+            } else {
+                currentSlide = index;
+            }
+            
+            // Mover slides
+            const slidesContainer = document.querySelector('.carousel-slides');
+            slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Atualizar indicadores
+            indicators.forEach((indicator, i) => {
+                if (i === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
+        
+        // Eventos dos botões do carrossel
+        prevButton.addEventListener('click', () => {
+            showSlide(currentSlide - 1);
+        });
+        
+        nextButton.addEventListener('click', () => {
+            showSlide(currentSlide + 1);
+        });
+        
+        // Eventos dos indicadores
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+        
+        // Navegação por teclado
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('tutorial').classList.contains('active')) {
+                if (e.key === 'ArrowLeft') {
+                    showSlide(currentSlide - 1);
+                } else if (e.key === 'ArrowRight') {
+                    showSlide(currentSlide + 1);
+                }
+            }
+        });
+        
+        // Inicializar carrossel
+        showSlide(0);
+    </script>
+</body>
+</html>
